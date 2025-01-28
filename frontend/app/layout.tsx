@@ -12,7 +12,13 @@ export const metadata: Metadata = {
   keywords: ['geología', 'educación', 'ciencias de la tierra', 'mapas interactivos'],
   viewport: 'width=device-width, initial-scale=1',
   themeColor: '#0055a5',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
+
 
 export default function RootLayout({
   children,

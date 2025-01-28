@@ -6,7 +6,6 @@ const db = require("../config/db");
 
 const router = express.Router();
 
-// Configuración de multer
 const uploadsDir = path.join(__dirname, "../../uploads");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -18,7 +17,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Obtener todos los puntos
 router.get("/", (req, res) => {
   db.all("SELECT * FROM points", [], (err, rows) => {
     if (err) {
@@ -29,7 +27,6 @@ router.get("/", (req, res) => {
   });
 });
 
-// Agregar un nuevo punto
 router.post("/", upload.array("images"), (req, res) => {
   const { name, description, latitude, longitude, type, url } = req.body;
   if (!name || !latitude || !longitude || !type) {
@@ -49,7 +46,6 @@ router.post("/", upload.array("images"), (req, res) => {
   );
 });
 
-// Editar un punto
 router.put("/:id", upload.array("images"), (req, res) => {
   const { id } = req.params;
   const { name, description, latitude, longitude, type, url } = req.body;
