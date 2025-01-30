@@ -33,6 +33,8 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   const [filteredPoints, setFilteredPoints] = useState(points);
   const [visiblePoints, setVisiblePoints] = useState<MapPoint[]>(points);
   const [gdeltPoints, setGdeltPoints] = useState<MapPoint[]>([]);
+  const [selectedPointId, setSelectedPointId] = useState<string | null>(null); 
+
 
 
   const fetchCoordinates = async (placeName: string) => {
@@ -175,7 +177,9 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
           point.type.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
+    setSelectedPointId(null); // 🔹 Resetear selección si cambia la búsqueda
   }, [searchTerm, points, gdeltPoints]);
+  
 
   const updateVisiblePoints = (transform) => {
     if (!projectionRef.current) return;
@@ -234,34 +238,30 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
         .attr("stroke", "#333")
         .attr("stroke-width", 0.5);
 
-      const markers = mapGroup
+        const markers = mapGroup
         .selectAll("g")
         .data(filteredPoints)
         .enter()
         .append("g")
-        .attr(
-          "transform",
-          (d) => `translate(${projectionRef.current!([d.longitude, d.latitude])!})`
-        );
+        .attr("transform", (d) => `translate(${projectionRef.current!([d.longitude, d.latitude])!})`);
 
+        
+      
       markers
         .append("circle")
-        .attr("r", 4)
-        .attr("fill", (d) => {
-          switch (d.type) {
-            case "research":
-              return "#e63946";
-            case "mining":
-              return "#2a9d8f";
-            case "volcanic":
-              return "#ee9b00";
-            default:
-              return "#457b9d";
-          }
-        })
+        .attr("r", 5)
+        .attr("fill", (d) => (d.id === selectedPointId ? "#ff0000" : "#457b9d")) // 🔹 Resaltar si está seleccionado
         .attr("stroke", "#fff")
         .attr("stroke-width", 2)
-        .attr("cursor", "pointer");
+        .attr("cursor", "pointer")
+        .on("click", (event, d) => {
+          setSelectedPointId(d.id);
+          console.log(`🔵 Noticia seleccionada: ${d.name}`);
+        });
+      
+        
+
+
 
 const tooltip = d3
   .select("body")
@@ -274,6 +274,8 @@ const tooltip = d3
   .style("box-shadow", "0 2px 4px rgba(0,0,0,0.2)")
   .style("pointer-events", "auto")
   .style("visibility", "hidden");
+
+  
 
 markers
   .on("mouseover", function (event, d) {
@@ -345,6 +347,8 @@ tooltip.on("mouseleave", function () {
     
   }, [filteredPoints, width, height]);
 
+
+  
   return (
     <div className="p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
 
@@ -355,7 +359,7 @@ tooltip.on("mouseleave", function () {
         <div className="w-2/3 relative h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
           <svg ref={svgRef} className="w-full h-full" />
         </div>
-        <NewsCards visiblePoints={visiblePoints} editPoint={editPoint} deletePoint={deletePoint} isAuthenticated={isAuthenticated}/>
+        <NewsCards visiblePoints={visiblePoints} editPoint={editPoint} deletePoint={deletePoint} isAuthenticated={isAuthenticated}  selectedPointId={selectedPointId}/>
       </div>
     </div>
   );
