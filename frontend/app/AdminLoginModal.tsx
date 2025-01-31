@@ -11,7 +11,7 @@ interface AdminLoginModalProps {
 }
 
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: AdminLoginModalProps) {
-  const [isRegister, setIsRegister] = useState(false); // Estado para alternar entre login y registro
+  const [isRegister, setIsRegister] = useState(false); 
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
 

@@ -21,11 +21,11 @@ export default function PointForm({
   removeImagePreview,
   imagePreviews
 }: PointFormProps) {
-  const [showPicker, setShowPicker] = useState(false); // 🔹 Estado para manejar la visibilidad de `CoordinatePicker`
+  const [showPicker, setShowPicker] = useState(false); 
 
   const saveCoordinates = (latitude: string, longitude: string) => {
-    setNewPoint({ ...newPoint, latitude, longitude }); // 🔹 Guardar coordenadas en el estado
-    setShowPicker(false); // 🔹 Cerrar el picker después de seleccionar
+    setNewPoint({ ...newPoint, latitude, longitude });
+    setShowPicker(false); 
   };
 
   return (
@@ -51,7 +51,6 @@ export default function PointForm({
           className="w-full p-2 border border-gray-300 rounded-md"
         />
         
-        {/* 🔹 Input para Latitud con botón para abrir `CoordinatePicker` */}
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -69,7 +68,6 @@ export default function PointForm({
           </button>
         </div>
 
-        {/* 🔹 Input para Longitud con botón para abrir `CoordinatePicker` */}
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -114,7 +112,6 @@ export default function PointForm({
         </select>
       </div>
 
-      {/* Vista previa de imágenes */}
       <ImagePreview imagePreviews={imagePreviews} removeImagePreview={removeImagePreview} />
 
       <button
@@ -124,7 +121,6 @@ export default function PointForm({
         {newPoint.id ? "Guardar Cambios" : "Agregar Punto"}
       </button>
 
-      {/* 🔹 Mostrar `CoordinatePicker` cuando `showPicker` sea `true` */}
       {showPicker && (
         <CoordinatePicker onSave={saveCoordinates} onClose={() => setShowPicker(false)} />
       )}

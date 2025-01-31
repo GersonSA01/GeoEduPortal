@@ -23,7 +23,7 @@ export default function DashboardAdmin() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]); 
   const [showPicker, setShowPicker] = useState(false); 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);  // ✅ Estado correcto
+  const [isAuthenticated, setIsAuthenticated] = useState(false);  
   const [newPoint, setNewPoint] = useState({
     id: null,
     name: "",
@@ -35,14 +35,13 @@ export default function DashboardAdmin() {
     images: null,
   });
 
-  // Cargar puntos al inicio
   useEffect(() => {
     loadPoints();
   }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    setIsAuthenticated(!!token);  // ✅ Verifica si hay un token
+    setIsAuthenticated(!!token);  
   }, []);
 
   const loadPoints = () => {
@@ -77,7 +76,6 @@ export default function DashboardAdmin() {
   };
 
   const removeImagePreview = (index: number) => {
-    // Eliminar la imagen de las vistas previas y de los archivos seleccionados
     const updatedPreviews = imagePreviews.filter((_, i) => i !== index);
     const updatedFiles = imageFiles.filter((_, i) => i !== index);
 
