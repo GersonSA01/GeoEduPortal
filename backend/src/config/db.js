@@ -29,8 +29,8 @@ db.serialize(() => {
       latitude REAL NOT NULL,
       longitude REAL NOT NULL,
       type TEXT NOT NULL,
-      url TEXT, -- Nueva columna para la URL de la noticia
-      images TEXT -- Nueva columna para las rutas de imágenes (separadas por comas)
+      url TEXT, 
+      images TEXT 
     )
   `);
 });

@@ -40,9 +40,6 @@ export default function Home({ onStart }: { onStart: () => void }) {
         </button>
       </div>
 
-
-
-
       <div className="h-screen w-full">
             <InteractiveGlobe />
       </div>
