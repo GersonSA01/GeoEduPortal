@@ -57,12 +57,12 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
         };
   
         localStorage.setItem(`coords_${placeName}`, JSON.stringify(location));
-        console.log(`✅ Coordenadas guardadas en caché para: ${placeName}`);
+        console.log(` Coordenadas guardadas en caché para: ${placeName}`);
   
         return location;
       }
     } catch (error) {
-      console.error("❌ Error en Geocoding:", error);
+      console.error("Error en Geocoding:", error);
     }
   
     return null;
@@ -149,7 +149,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   
         setGdeltPoints(filteredGdeltData);
   
-        // Guardar en caché
         localStorage.setItem(cacheKey, JSON.stringify(filteredGdeltData));
         localStorage.setItem(cacheTimeKey, Date.now().toString());
   
@@ -161,10 +160,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
     fetchGDELTNews();
   }, []);
   
-  
-  
-  
-
   useEffect(() => {
     setFilteredPoints(
       [...points, ...gdeltPoints].filter(
@@ -254,11 +249,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
           setSelectedPointId(d.id);
           console.log(`🔵 Noticia seleccionada: ${d.name}`);
         });
-      
         
-
-
-
 const tooltip = d3
   .select("body")
   .append("div")
@@ -337,14 +328,10 @@ tooltip.on("mouseleave", function () {
       updateVisiblePoints({ x: 0, y: 0, k: 1 }); 
     });
 
-    
-
-
-    
+        
   }, [filteredPoints, width, height]);
 
-
-  
+ 
   return (
     <div className="p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
 
