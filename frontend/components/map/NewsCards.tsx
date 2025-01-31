@@ -7,7 +7,7 @@ interface MapPoint {
   description: string;
   type: string;
   url?: string;
-  images?: string; // Puede ser una URL simple o una lista separada por comas
+  images?: string; 
 }
 
 interface NewsCardsProps {
@@ -19,13 +19,13 @@ interface NewsCardsProps {
 }
 
 export default function NewsCards({ visiblePoints, editPoint, deletePoint, isAuthenticated, selectedPointId }: NewsCardsProps) {
-  const refs = useRef<{ [key: string]: HTMLDivElement | null }>({}); // Diccionario de referencias
+  const refs = useRef<{ [key: string]: HTMLDivElement | null }>({}); 
 
   useEffect(() => {
     if (selectedPointId && refs.current[selectedPointId]) {
       refs.current[selectedPointId]?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [selectedPointId]); // 🔹 Se activa solo cuando cambia la selección
+  }, [selectedPointId]); 
 
   return (
     <div className="w-1/3 max-h-[600px] overflow-y-auto p-4 bg-white rounded-lg shadow-lg">
@@ -34,7 +34,7 @@ export default function NewsCards({ visiblePoints, editPoint, deletePoint, isAut
         visiblePoints.map((point) => (
           <div
             key={point.id}
-            ref={(el) => (refs.current[point.id] = el)} // 🔹 Se asigna la referencia individualmente
+            ref={(el) => (refs.current[point.id] = el)} 
             className={`mb-4 p-4 border rounded-lg shadow-md bg-gray-100 relative ${
               point.id === selectedPointId ? "border-2 border-blue-500 bg-blue-50" : ""
             }`}

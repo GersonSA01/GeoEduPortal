@@ -22,7 +22,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mapPoints, setMapPoints] = useState<MapPoint[]>([]);
-  const [showMap, setShowMap] = useState(false); // Estado centralizado para controlar qué mostrar
+  const [showMap, setShowMap] = useState(false); 
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -102,7 +102,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         ) : showMap ? (
           <Map points={mapPoints} />
         ) : (
-          <Home onStart={() => setShowMap(true)} /> // Pasar la función para manejar el estado
+          <Home onStart={() => setShowMap(true)} /> 
         )}
       </div>
     </>

@@ -33,7 +33,7 @@ export default function Home({ onStart }: { onStart: () => void }) {
           Descubre eventos globales en tiempo real con nuestro mapa interactivo. Mantente informado sobre los acontecimientos más importantes alrededor del mundo.
         </p>
         <button
-          onClick={onStart} // Llamar a la función recibida como prop
+          onClick={onStart} 
           className="bg-blue-500 px-6 py-3 rounded-md text-white font-bold hover:bg-blue-600 transition"
         >
           Empezar

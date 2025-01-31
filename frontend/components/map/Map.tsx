@@ -56,7 +56,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
           lon: data.results[0].geometry.location.lng,
         };
   
-        // Guardar en caché por si se vuelve a consultar
         localStorage.setItem(`coords_${placeName}`, JSON.stringify(location));
         console.log(`✅ Coordenadas guardadas en caché para: ${placeName}`);
   
@@ -85,15 +84,14 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
       "&lang=en" +
       "&image=only" +
       "&sort=rel" +
-      "&domain=cnn.com,bbc.com" +
+      "&domain=cnn.com,bbc.com, espn .com" +
       "&domaincountry=us";
   
     const fetchGDELTNews = async () => {
       const cacheKey = "gdelt_news_cache";
       const cacheTimeKey = "gdelt_news_time";
-      const cacheDuration = 30 * 60 * 1000; // 30 minutos
+      const cacheDuration = 30 * 60 * 1000; 
   
-      // ⚡ Verificar si hay datos en caché y no han expirado
       const cachedData = localStorage.getItem(cacheKey);
       const cachedTime = localStorage.getItem(cacheTimeKey);
       if (cachedData && cachedTime && Date.now() - parseInt(cachedTime) < cacheDuration) {
@@ -113,7 +111,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
           return;
         }
   
-        // 🚀 Obtener coordenadas para cada noticia basada en `sourcecountry`
         const gdeltData: MapPoint[] = await Promise.all(
           data.articles.map(async (article: any, index: number) => {
             let lat = null;
@@ -147,7 +144,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
           })
         );
   
-        // Filtrar artículos sin coordenadas
         const filteredGdeltData = gdeltData.filter((point) => point !== null);
         console.log("🗺️ Puntos de GDELT con coordenadas:", filteredGdeltData);
   
@@ -177,7 +173,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
           point.type.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-    setSelectedPointId(null); // 🔹 Resetear selección si cambia la búsqueda
+    setSelectedPointId(null); 
   }, [searchTerm, points, gdeltPoints]);
   
 
@@ -250,7 +246,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
       markers
         .append("circle")
         .attr("r", 5)
-        .attr("fill", (d) => (d.id === selectedPointId ? "#ff0000" : "#457b9d")) // 🔹 Resaltar si está seleccionado
+        .attr("fill", (d) => (d.id === selectedPointId ? "#ff0000" : "#457b9d")) 
         .attr("stroke", "#fff")
         .attr("stroke-width", 2)
         .attr("cursor", "pointer")

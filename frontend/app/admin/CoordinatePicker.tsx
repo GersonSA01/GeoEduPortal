@@ -29,13 +29,11 @@ export default function CoordinatePicker({ onSave, onClose }: CoordinatePickerPr
 
     const svg = d3.select(svgRef.current).attr("width", width).attr("height", height);
 
-    // Eliminar contenido duplicado antes de agregarlo nuevamente
     svg.selectAll("*").remove();
 
     const mapGroup = svg.append("g");
     mapGroupRef.current = mapGroup.node();
 
-    // Añadir zoom y paneo
     const zoom = d3.zoom().scaleExtent([1, 8]).on("zoom", (event) => {
       mapGroup.attr("transform", event.transform);
     });
@@ -46,42 +44,38 @@ export default function CoordinatePicker({ onSave, onClose }: CoordinatePickerPr
         mapGroup
           .selectAll("path")
           .data(data.features)
-          .join("path") // Usar `.join` para asegurarse de que no se dupliquen elementos
+          .join("path") 
           .attr("d", path as any)
           .attr("fill", "#cceeff")
           .attr("stroke", "#333")
           .attr("stroke-width", 0.5);
 
-        // Evento de clic para seleccionar coordenadas
         svg.on("click", function (event: MouseEvent) {
-          const [x, y] = d3.pointer(event, svg.node()); // Coordenadas del clic relativo al SVG
-          const transform = d3.zoomTransform(mapGroupRef.current!); // Transformación actual (zoom/paneo)
+          const [x, y] = d3.pointer(event, svg.node()); 
+          const transform = d3.zoomTransform(mapGroupRef.current!); 
 
-          // Ajustar las coordenadas clicadas con la transformación del zoom/paneo
           const coords = projection.invert(transform.invert([x, y]) as [number, number]);
           if (coords) {
             setSelectedCoordinates({ lat: coords[1], lon: coords[0] });
 
-            // Colocar el pin en la posición seleccionada
             if (pinRef.current) {
               d3.select(pinRef.current)
                 .attr("cx", x)
                 .attr("cy", y)
-                .style("display", "block"); // Mostrar el pin
+                .style("display", "block"); 
             }
           }
         });
       });
 
-    // Agregar un círculo para representar el pin
     svg.append("circle")
       .attr("r", 8)
       .attr("fill", "red")
       .attr("stroke", "white")
       .attr("stroke-width", 2)
-      .style("display", "none") // Ocultar por defecto
+      .style("display", "none") 
       .attr("class", "pin")
-      .attr("pointer-events", "none") // No bloquear eventos de clic en el mapa
+      .attr("pointer-events", "none") 
       .each(function () {
         pinRef.current = this;
       });
