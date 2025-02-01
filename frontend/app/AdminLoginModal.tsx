@@ -21,31 +21,40 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     try {
       const url = isRegister
         ? "http://localhost:5000/api/auth/register"
         : "http://localhost:5000/api/auth/login";
-
+  
       const { data } = await axios.post(url, formData);
-
+  
       if (isRegister) {
-        Swal.fire("¡Éxito!", "Registro completado. Ahora puedes iniciar sesión.", "success");
+        Swal.fire("¡Registro enviado!", "Tu solicitud ha sido enviada. Espera la aprobación del administrador.", "info");
         setIsRegister(false); 
       } else {
+        if (data.approved === false) {
+          Swal.fire("Pendiente de Aprobación", "Tu cuenta aún no ha sido aprobada por el administrador. Por favor, espera.", "warning");
+          return;
+        }
+  
         localStorage.setItem("authToken", data.token);
-
         Swal.fire("¡Éxito!", "Inicio de sesión correcto.", "success");
         onLoginSuccess();
         onClose();
       }
-
+  
       setFormData({ name: "", email: "", password: "" });
       setMessage("");
     } catch (error: any) {
-      setMessage(error.response?.data?.message || "Error inesperado.");
+      if (error.response?.status === 403) {
+        Swal.fire("Pendiente de Aprobación", "Tu cuenta aún no ha sido aprobada. Intenta más tarde.", "warning");
+      } else {
+        setMessage(error.response?.data?.message || "Error inesperado.");
+      }
     }
   };
+  
 
   return (
     <div className={`fixed inset-0 z-50 ${isOpen ? "block" : "hidden"}`}>

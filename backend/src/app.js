@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const pointRoutes = require("./routes/pointRoutes");
+const { approveUser } = require("./controllers/approveController");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
@@ -14,6 +15,8 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/points", pointRoutes);
+
+app.get("/api/approve", approveUser);
 
 app.use(errorHandler);
 
