@@ -333,18 +333,33 @@ tooltip.on("mouseleave", function () {
 
  
   return (
-    <div className="p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
+<div className="p-4 sm:p-6 lg:p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
 
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+<div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mt-8">
+  <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+</div>
+
+<div className="flex flex-col md:flex-row w-full max-w-7xl gap-6">
 
 
-      <div className="flex w-full max-w-8xl gap-18">
-        <div className="w-2/3 relative h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
-          <svg ref={svgRef} className="w-full h-full" />
-        </div>
-        <NewsCards visiblePoints={visiblePoints} editPoint={editPoint} deletePoint={deletePoint} isAuthenticated={isAuthenticated}  selectedPointId={selectedPointId}/>
-      </div>
-    </div>
+  <div className="w-full md:w-2/3 relative h-[400px] md:h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
+    <svg ref={svgRef} className="w-full h-full md:w-1/3 touch-none" />
+  </div>
+  
+    <div className="w-full md:w-1/3">
+    <NewsCards 
+      visiblePoints={visiblePoints} 
+      editPoint={editPoint} 
+      deletePoint={deletePoint} 
+      isAuthenticated={isAuthenticated}  
+      selectedPointId={selectedPointId}
+    />
+  </div>
+
+
+</div>
+</div>
+
   );
 }
 
