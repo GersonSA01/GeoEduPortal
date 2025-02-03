@@ -12,3 +12,10 @@ Terminal 2 (Backend)
 cd backend
 npm install
 npm run dev
+
+*Nuevo*
+Debido a que se implemento una nueva de registrar los administradores msa robusta se le proporcionara credenciales de acceso:
+Correo:
+gsuareza3@unemi.edu.ec
+Contraseña:
+gsuareza3
