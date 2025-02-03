@@ -14,7 +14,8 @@ npm install
 npm run dev
 
 *Nuevo*
-Debido a que se implemento una nueva de registrar los administradores msa robusta se le proporcionara credenciales de acceso:
+Debido a que se implemento una nueva forma de registrar los administradores mas robusta, 
+se le proporcionara credenciales de acceso:
 Correo:
 gsuareza3@unemi.edu.ec
 Contraseña:
