@@ -4,20 +4,6 @@ import { Suspense } from "react";
 import { motion } from "framer-motion";
 import InteractiveGlobe from "../components/InteractiveGlobe";
 
-const dummyNews = [
-  {
-    position: [2, 0, 0],
-    title: "Descubrimiento Arqueológico en Egipto",
-    summary: "Nueva tumba encontrada en el Valle de los Reyes",
-    link: "https://example.com/news/1",
-  },
-  {
-    position: [0, 2, 0],
-    title: "Avance Tecnológico en Japón",
-    summary: "Nuevo robot asistente para hospitales",
-    link: "https://example.com/news/2",
-  },
-];
 
 export default function Home({ onStart }: { onStart: () => void }) {
   return (

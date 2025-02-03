@@ -6,9 +6,9 @@ const InteractiveGlobe: React.FC = () => {
 
   useEffect(() => {
     const globe = Globe()(globeRef.current)
-      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-blue-marble.jpg") // Textura sin color
-      .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png") // Relieve
-      .backgroundImageUrl("//unpkg.com/three-globe/example/img/night-sky.png") // Fondo
+      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-blue-marble.jpg") 
+      .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png")
+      .backgroundImageUrl("//unpkg.com/three-globe/example/img/night-sky.png") 
 
       .onGlobeClick(({ lat, lng }) => {
         console.log(`Latitud: ${lat}, Longitud: ${lng}`);
