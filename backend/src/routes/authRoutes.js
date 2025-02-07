@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.get("/approve", approveUser); // Nueva ruta para aprobar o rechazar usuarios
+router.get("/approve", approveUser); 
 
 module.exports = router;
