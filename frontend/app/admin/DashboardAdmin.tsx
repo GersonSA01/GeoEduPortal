@@ -64,7 +64,6 @@ export default function DashboardAdmin() {
         setImageFiles(Array.from(files));
         setNewPoint({ ...newPoint, images: files });
 
-        // Generar vistas previas de las imágenes
         const previews = Array.from(files).map((file) =>
           URL.createObjectURL(file)
         );
@@ -186,6 +185,8 @@ export default function DashboardAdmin() {
   };
 
   const editPoint = (point: MapPoint) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  
     setNewPoint({
       id: point.id,
       name: point.name,
@@ -194,17 +195,23 @@ export default function DashboardAdmin() {
       longitude: point.longitude.toString(),
       type: point.type,
       url: point.url || "",
-      images: null, 
+      images: null,
     });
-    setImagePreviews([]); 
+  
+    setImagePreviews([]);
+  
     Swal.fire({
       icon: "info",
       title: "Editar Punto",
       text: `Ahora puedes editar el punto "${point.name}".`,
       timer: 2000,
+    }).then(() => {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "instant" }); 
+      }, 300); 
     });
   };
-
+  
   const openPicker = () => setShowPicker(true);
   const closePicker = () => setShowPicker(false);
 

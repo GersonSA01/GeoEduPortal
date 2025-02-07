@@ -40,7 +40,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   const fetchCoordinates = async (placeName: string) => {
     const cachedData = localStorage.getItem(`coords_${placeName}`);
     if (cachedData) {
-      console.log(`📌 Usando coordenadas en caché para: ${placeName}`);
       return JSON.parse(cachedData);
     }
   
@@ -95,7 +94,6 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
       const cachedData = localStorage.getItem(cacheKey);
       const cachedTime = localStorage.getItem(cacheTimeKey);
       if (cachedData && cachedTime && Date.now() - parseInt(cachedTime) < cacheDuration) {
-        console.log("📌 Usando datos en caché de GDELT");
         setGdeltPoints(JSON.parse(cachedData));
         return;
       }
@@ -107,7 +105,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
         console.log("✅ GDELT API Response:", data);
   
         if (!data.articles) {
-          console.error("❌ No articles found in response.");
+          console.error("No articles found in response.");
           return;
         }
   
@@ -153,7 +151,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
         localStorage.setItem(cacheTimeKey, Date.now().toString());
   
       } catch (error) {
-        console.error("❌ Error fetching GDELT data:", error);
+        console.error("Error fetching GDELT data:", error);
       }
     };
   
@@ -331,36 +329,33 @@ tooltip.on("mouseleave", function () {
         
   }, [filteredPoints, width, height]);
 
- 
   return (
-<div className="p-4 sm:p-6 lg:p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
-
-<div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mt-8">
-  <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-</div>
-
-<div className="flex flex-col md:flex-row w-full max-w-7xl gap-6">
-
-
-  <div className="w-full md:w-2/3 relative h-[400px] md:h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
-    <svg ref={svgRef} className="w-full h-full md:w-1/3 touch-none" />
-  </div>
+    <div className="p-4 sm:p-6 lg:p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
   
-    <div className="w-full md:w-1/3">
-    <NewsCards 
-      visiblePoints={visiblePoints} 
-      editPoint={editPoint} 
-      deletePoint={deletePoint} 
-      isAuthenticated={isAuthenticated}  
-      selectedPointId={selectedPointId}
-    />
-  </div>
-
-
-</div>
-</div>
-
+      <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mt-8">
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      </div>
+  
+      <div className="flex flex-col md:flex-row w-full max-w-7xl gap-6 h-[80vh]">
+  
+        <div className="w-full md:w-1/2 h-full bg-white rounded-lg shadow-lg overflow-hidden">
+          <svg ref={svgRef} className="w-full h-full touch-none" />
+        </div>
+  
+        <div className="w-full md:w-1/2 h-full overflow-y-auto">
+          <NewsCards 
+            visiblePoints={visiblePoints} 
+            editPoint={editPoint} 
+            deletePoint={deletePoint} 
+            isAuthenticated={isAuthenticated}  
+            selectedPointId={selectedPointId}
+          />
+        </div>
+  
+      </div>
+    </div>
   );
+  
 }
 
 
