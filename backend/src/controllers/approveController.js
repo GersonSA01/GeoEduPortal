@@ -4,12 +4,12 @@ const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "gersonsuareza5@gmail.com", 
-    pass: "cbib qbka ybdt xxqs" 
+    user: "gersonsuareza5@gmail.com",
+    pass: "cbib qbka ybdt xxqs"
   }
 });
 
-exports.approveUser = (req, res) => {
+exports.approveUser = async (req, res) => {
   const { email, approve } = req.query;
 
   if (!email) {
@@ -21,13 +21,15 @@ exports.approveUser = (req, res) => {
     `);
   }
 
-  if (approve === "true") {
-    User.approveUser(email, (err) => {
-      if (err) {
-        return res.status(500).send(`
+  try {
+    if (approve === "true") {
+      const updatedUser = await User.update({ approved: true }, { where: { email } });
+
+      if (updatedUser[0] === 0) {
+        return res.status(404).send(`
           <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 500px; margin: auto;">
-            <h2 style="color: red;">❌ Error al aprobar usuario</h2>
-            <p>Hubo un problema con la base de datos.</p>
+            <h2 style="color: red;">❌ Usuario no encontrado</h2>
+            <p>No existe un usuario con este email.</p>
           </div>
         `);
       }
@@ -59,22 +61,21 @@ exports.approveUser = (req, res) => {
         html: approvalEmailHTML
       });
 
-      res.send(`
+      return res.send(`
         <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 500px; margin: auto;">
           <h2 style="color: #28a745;">✅ Usuario aprobado con éxito</h2>
           <p>El usuario con email <strong>${email}</strong> ha sido aprobado.</p>
           <p>Puedes cerrar esta ventana.</p>
         </div>
       `);
-    });
+    } else {
+      const deletedUser = await User.destroy({ where: { email } });
 
-  } else {
-    User.deleteUser(email, (err) => {
-      if (err) {
-        return res.status(500).send(`
+      if (deletedUser === 0) {
+        return res.status(404).send(`
           <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 500px; margin: auto;">
-            <h2 style="color: red;">❌ Error al eliminar usuario</h2>
-            <p>Hubo un problema con la base de datos.</p>
+            <h2 style="color: red;">❌ Usuario no encontrado</h2>
+            <p>No existe un usuario con este email.</p>
           </div>
         `);
       }
@@ -102,13 +103,21 @@ exports.approveUser = (req, res) => {
         html: rejectionEmailHTML
       });
 
-      res.send(`
+      return res.send(`
         <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 500px; margin: auto;">
           <h2 style="color: #dc3545;">❌ Usuario rechazado</h2>
           <p>El usuario con email <strong>${email}</strong> ha sido rechazado.</p>
           <p>Puedes cerrar esta ventana.</p>
         </div>
       `);
-    });
+    }
+  } catch (error) {
+    console.error("❌ Error en la aprobación/rechazo del usuario:", error);
+    return res.status(500).send(`
+      <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 500px; margin: auto;">
+        <h2 style="color: red;">❌ Error en la base de datos</h2>
+        <p>Hubo un problema al procesar la solicitud.</p>
+      </div>
+    `);
   }
 };

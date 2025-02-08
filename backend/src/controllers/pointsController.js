@@ -1,39 +1,46 @@
-const db = require("../config/db");
+const Point = require("../models/Points");
 const fs = require("fs");
 const path = require("path");
 
-exports.getAllPoints = (req, res) => {
-  db.all("SELECT * FROM points", [], (err, rows) => {
-    if (err) {
-      console.error("Error al obtener los puntos:", err.message);
-      return res.status(500).json({ error: "Error al obtener los puntos" });
-    }
-    res.status(200).json(rows);
-  });
+exports.getAllPoints = async (req, res) => {
+  try {
+    const points = await Point.findAll();
+    res.status(200).json(points);
+  } catch (error) {
+    console.error("Error al obtener los puntos:", error);
+    res.status(500).json({ error: "Error al obtener los puntos" });
+  }
 };
 
-exports.createPoint = (req, res) => {
+exports.createPoint = async (req, res) => {
   const { name, description, latitude, longitude, type, url } = req.body;
+
   if (!name || !latitude || !longitude || !type) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
 
-  const images = req.files.map((file) => `/uploads/${file.filename}`).join(",");
+  try {
+    const images = req.files?.map((file) => `/uploads/${file.filename}`).join(",") || null;
 
-  db.run(
-    "INSERT INTO points (name, description, latitude, longitude, type, url, images) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    [name, description, latitude, longitude, type, url, images],
-    function (err) {
-      if (err) {
-        console.error("Error al agregar el punto:", err.message);
-        return res.status(500).json({ error: "Error al agregar el punto" });
-      }
-      res.status(201).json({ id: this.lastID, message: "Punto agregado exitosamente" });
-    }
-  );
+    const newPoint = await Point.create({
+      name,
+      description,
+      latitude,
+      longitude,
+      type,
+      url,
+      images
+    });
+
+    res.status(201).json({ id: newPoint.id, message: "Punto agregado exitosamente" });
+
+  } catch (error) {
+    console.error("Error al agregar el punto:", error);
+    res.status(500).json({ error: "Error al agregar el punto" });
+  }
 };
 
-exports.updatePoint = (req, res) => {
+exports.updatePoint = async (req, res) => {
   const { id } = req.params;
   const { name, description, latitude, longitude, type, url } = req.body;
 
@@ -41,38 +48,44 @@ exports.updatePoint = (req, res) => {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
 
-  const images = req.files.length
-    ? req.files.map((file) => `/uploads/${file.filename}`).join(",")
-    : null;
-
-  const query = images
-    ? "UPDATE points SET name = ?, description = ?, latitude = ?, longitude = ?, type = ?, url = ?, images = ? WHERE id = ?"
-    : "UPDATE points SET name = ?, description = ?, latitude = ?, longitude = ?, type = ?, url = ? WHERE id = ?";
-
-  const params = images
-    ? [name, description, latitude, longitude, type, url, images, id]
-    : [name, description, latitude, longitude, type, url, id];
-
-  db.run(query, params, function (err) {
-    if (err) {
-      console.error("Error al editar el punto:", err.message);
-      return res.status(500).json({ error: "Error al editar el punto" });
+  try {
+    const existingPoint = await Point.findByPk(id);
+    if (!existingPoint) {
+      return res.status(404).json({ error: "Punto no encontrado" });
     }
-    res.status(200).json({ message: "Punto editado exitosamente" });
-  });
+
+    const newImages = req.files?.length 
+      ? req.files.map((file) => `/uploads/${file.filename}`).join(",") 
+      : existingPoint.images;
+
+    const [updatedRows] = await Point.update(
+      { name, description, latitude, longitude, type, url, images: newImages },
+      { where: { id } }
+    );
+
+    if (updatedRows === 0) {
+      return res.status(404).json({ error: "No se pudo actualizar el punto" });
+    }
+
+    res.status(200).json({ message: "Punto editado exitosamente", updatedPoint: newImages });
+
+  } catch (error) {
+    console.error("Error al editar el punto:", error);
+    res.status(500).json({ error: "Error al editar el punto" });
+  }
 };
 
-exports.deletePoint = (req, res) => {
+exports.deletePoint = async (req, res) => {
   const { id } = req.params;
 
-  db.get("SELECT images FROM points WHERE id = ?", [id], (err, row) => {
-    if (err) {
-      console.error("Error al buscar el punto:", err.message);
-      return res.status(500).json({ error: "Error al buscar el punto" });
+  try {
+    const point = await Point.findByPk(id);
+    if (!point) {
+      return res.status(404).json({ error: "Punto no encontrado" });
     }
 
-    if (row && row.images) {
-      const imagePaths = row.images.split(",");
+    if (point.images) {
+      const imagePaths = point.images.split(",");
       imagePaths.forEach((img) => {
         const filePath = path.join(__dirname, "../../", img);
         if (fs.existsSync(filePath)) {
@@ -81,12 +94,11 @@ exports.deletePoint = (req, res) => {
       });
     }
 
-    db.run("DELETE FROM points WHERE id = ?", [id], function (err) {
-      if (err) {
-        console.error("Error al eliminar el punto:", err.message);
-        return res.status(500).json({ error: "Error al eliminar el punto" });
-      }
-      res.status(200).json({ message: "Punto eliminado exitosamente" });
-    });
-  });
+    await point.destroy();
+    res.status(200).json({ message: "Punto eliminado exitosamente" });
+
+  } catch (error) {
+    console.error("Error al eliminar el punto:", error);
+    res.status(500).json({ error: "Error al eliminar el punto" });
+  }
 };
