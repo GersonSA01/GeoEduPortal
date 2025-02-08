@@ -2,7 +2,6 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const { countries } = require("countries-list");
 const cities = require("all-the-cities");
 
-
 const GDELT_API_URL =
     "https://api.gdeltproject.org/api/v2/doc/doc?query=news&format=json" +
     "&maxrecords=20" +
@@ -15,6 +14,21 @@ const GDELT_API_URL =
     "&domain=bbc.com,cnn.com,elpais.com,clarin.com,eluniversal.com,milenio.com";
 
 const cache = {};
+const newsCache = {}; 
+const CACHE_EXPIRATION_TIME = 60 * 60 * 2000; 
+
+function isNewsCached(articleId) {
+    if (newsCache[articleId]) {
+        const { timestamp } = newsCache[articleId];
+        const currentTime = Date.now();
+        return currentTime - timestamp < CACHE_EXPIRATION_TIME;
+    }
+    return false;
+}
+
+function cacheNews(articleId, newsData) {
+    newsCache[articleId] = { timestamp: Date.now(), data: newsData };
+}
 
 function extractLocationFromTitle(title, sourceCountry) {
     if (!title) return { city: null, country: null };
@@ -67,7 +81,7 @@ async function fetchCoordinates(placeName) {
                 lat: data.results[0].geometry.location.lat,
                 lon: data.results[0].geometry.location.lng,
             };
-            cache[placeName] = location;  
+            cache[placeName] = location;
             return location;
         }
     } catch (error) {
@@ -92,6 +106,12 @@ async function fetchGDELTNews(req, res) {
 
         const news = await Promise.all(
             data.articles.map(async (article, index) => {
+                const articleId = article.url; 
+
+                if (isNewsCached(articleId)) {
+                    return newsCache[articleId].data;
+                }
+
                 let lat = null, lon = null;
                 let { city, country } = extractLocationFromTitle(article.title, article.sourcecountry);
 
@@ -107,7 +127,7 @@ async function fetchGDELTNews(req, res) {
                             lon = location.lon;
                         }
                     }
-                } 
+                }
 
                 if (!lat && country) {
                     const location = await fetchCoordinates(country);
@@ -133,7 +153,7 @@ async function fetchGDELTNews(req, res) {
                     lon = newCoords.lon;
                 }
 
-                return lat && lon
+                const newsData = lat && lon
                     ? {
                         id: `gdelt-${index}`,
                         name: article.title || "Sin título",
@@ -145,6 +165,9 @@ async function fetchGDELTNews(req, res) {
                         images: article.socialimage || "https://via.placeholder.com/150",
                     }
                     : null;
+
+                cacheNews(articleId, newsData);
+                return newsData;
             })
         );
 
