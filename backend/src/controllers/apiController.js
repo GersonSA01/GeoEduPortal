@@ -5,7 +5,7 @@ const cities = require("all-the-cities");
 
 const GDELT_API_URL =
     "https://api.gdeltproject.org/api/v2/doc/doc?query=news&format=json" +
-    "&maxrecords=25" +
+    "&maxrecords=20" +
     "&timespan=1days" +
     "&lang=es" +
     "&image=only" +

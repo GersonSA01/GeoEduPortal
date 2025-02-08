@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import NewsCards from "./NewsCards";
 import SearchBar from "./SearchBar"
 import { fetchGDELTNews } from "../../lib/apiService"; 
+import categoriesData from "../../lib/categories.json";
 
 interface MapPoint {
   id: string;
@@ -55,35 +56,22 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
       .replace(/[\u0300-\u036f]/g, ""); 
   };
 
-
-  const CATEGORIES = {
-    "salud": ["hospital", "médico", "virus", "pandemia", "vacuna", "covid", "salud"],
-    "politica": ["gobierno", "presidente", "elección", "congreso", "ley", "partido"],
-    "seguridad": ["policía", "crimen", "delito", "robo", "asesinato", "secuestro", "violencia"],
-    "accidente": ["choque", "colisión", "derrumbe", "explosión", "accidente", "incendio"],
-    "conflicto": ["guerra", "protesta", "manifestación", "ataque", "terrorismo", "conflicto"],
-    "clima": ["huracán", "tormenta", "terremoto", "inundación", "frío", "calor", "desastre"],
-    "tecnologia": ["IA", "inteligencia artificial", "robot", "ciberseguridad", "redes", "smartphone"],
-  };
   
-  function categorizeNews(title: string): "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia" | "otros" {
+  function categorizeNews(title: string): string {
     if (!title) return "otros";
   
-    for (let category in CATEGORIES) {
-      for (let keyword of CATEGORIES[category]) {
-        const regex = new RegExp(`\\b${keyword}\\b`, "i"); 
+    for (let category in categoriesData) {
+      for (let keyword of categoriesData[category]) {
+        const regex = new RegExp(`\\b${keyword}\\b`, "i");
         if (regex.test(title)) {
-          return category as "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia";
+          return category;
         }
       }
     }
   
-    return "otros"; 
+    return "otros";
   }
-  
 
-
-  
 
   useEffect(() => {
     const filtered = [...points, ...gdeltPoints].filter(
