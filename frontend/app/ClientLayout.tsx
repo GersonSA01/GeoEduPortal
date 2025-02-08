@@ -15,7 +15,7 @@ interface MapPoint {
   description: string;
   latitude: number;
   longitude: number;
-  type: string;
+  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima"; 
 }
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

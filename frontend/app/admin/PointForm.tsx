@@ -152,10 +152,14 @@ export default function PointForm({
             onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
-            <option value="research">Investigación</option>
-            <option value="mining">Minería</option>
-            <option value="volcanic">Volcánico</option>
+            <option value="salud">Salud</option>
+            <option value="politica">Política</option>
+            <option value="seguridad">Seguridad</option>
+            <option value="accidente">Accidente</option>
+            <option value="conflicto">Conflicto</option>
+            <option value="clima">Clima</option>
           </select>
+
         </div>
 
       </div>

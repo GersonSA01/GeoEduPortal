@@ -13,7 +13,7 @@ interface MapPoint {
   description: string;
   latitude: number;
   longitude: number;
-  type: string;
+  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima"; 
   url?: string;
   images?: string[];
 }
@@ -30,7 +30,7 @@ export default function DashboardAdmin() {
     description: "",
     latitude: "",
     longitude: "",
-    type: "research",
+    type: "noticia",
     url: "",
     images: null,
   });

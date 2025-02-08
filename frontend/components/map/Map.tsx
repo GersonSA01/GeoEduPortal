@@ -11,7 +11,7 @@ interface MapPoint {
   description: string;
   latitude: number;
   longitude: number;
-  type: string;
+  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima"; 
   url?: string;
   images?: string;
 }
@@ -34,7 +34,24 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   const [visiblePoints, setVisiblePoints] = useState<MapPoint[]>(points);
   const [gdeltPoints, setGdeltPoints] = useState<MapPoint[]>([]);
   const [selectedPointId, setSelectedPointId] = useState<string | null>(null); 
+  const [selectedType, setSelectedType] = useState<string | "todos">("todos");
 
+  const typeColors: Record<string, string> = {
+    salud: "#2ecc71",
+    politica: "#e74c3c",
+    seguridad: "#f1c40f",
+    accidente: "#3498db",
+    conflicto: "#9b59b6",
+    clima: "#1abc9c",
+    default: "#95a5a6",
+  };
+
+  const normalizeType = (type: string) => {
+    return type
+      .toLowerCase()
+      .normalize("NFD") 
+      .replace(/[\u0300-\u036f]/g, ""); 
+  };
 
 
   const fetchCoordinates = async (placeName: string) => {
@@ -75,6 +92,18 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
       lon: lon + (Math.random() * offset - offset / 2),
     };
   };
+
+  useEffect(() => {
+    const filtered = [...points, ...gdeltPoints].filter(
+      (point) =>
+        (selectedType === "todos" || normalizeType(point.type) === selectedType) &&
+        (point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         point.type.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredPoints(filtered);
+    setSelectedPointId(null);
+  }, [searchTerm, points, gdeltPoints, selectedType]);
+  
   useEffect(() => {
     const GDELT_API_URL =
       "https://api.gdeltproject.org/api/v2/doc/doc?query=earthquake&format=json" +
@@ -128,7 +157,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
               ? {
                   id: `gdelt-${index}`,
                   name: article.title,
-                  description: article.excerpt || "Noticia relacionada con terremotos",
+                  description: article.excerpt || "Noticia",
                   latitude: lat,
                   longitude: lon,
                   type: "news",
@@ -141,6 +170,11 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
               : null;
           })
         );
+
+
+
+        
+        
   
         const filteredGdeltData = gdeltData.filter((point) => point !== null);
         console.log("🗺️ Puntos de GDELT con coordenadas:", filteredGdeltData);
@@ -234,12 +268,16 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
         .append("g")
         .attr("transform", (d) => `translate(${projectionRef.current!([d.longitude, d.latitude])!})`);
 
-        
+
+
+
       
       markers
         .append("circle")
         .attr("r", 5)
-        .attr("fill", (d) => (d.id === selectedPointId ? "#ff0000" : "#457b9d")) 
+        .attr("fill", (d) =>
+          d.id === selectedPointId ? "#ff0000" : (typeColors[normalizeType(d.type)] || typeColors.default)
+        )
         .attr("stroke", "#fff")
         .attr("stroke-width", 2)
         .attr("cursor", "pointer")
@@ -331,11 +369,18 @@ tooltip.on("mouseleave", function () {
 
   return (
     <div className="p-4 sm:p-6 lg:p-12 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
+    
   
       <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mt-8">
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <SearchBar
+  searchTerm={searchTerm}
+  setSearchTerm={setSearchTerm}
+  selectedType={selectedType}
+  setSelectedType={setSelectedType}
+/>
       </div>
-  
+
+
       <div className="flex flex-col md:flex-row w-full max-w-7xl gap-6 h-[80vh]">
   
         <div className="w-full md:w-1/2 h-full bg-white rounded-lg shadow-lg overflow-hidden">
