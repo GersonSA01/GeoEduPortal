@@ -112,10 +112,10 @@ exports.approveUser = async (req, res) => {
       `);
     }
   } catch (error) {
-    console.error("❌ Error en la aprobación/rechazo del usuario:", error);
+    console.error("Error en la aprobación/rechazo del usuario:", error);
     return res.status(500).send(`
       <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 500px; margin: auto;">
-        <h2 style="color: red;">❌ Error en la base de datos</h2>
+        <h2 style="color: red;">Error en la base de datos</h2>
         <p>Hubo un problema al procesar la solicitud.</p>
       </div>
     `);

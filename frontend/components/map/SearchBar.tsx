@@ -18,7 +18,8 @@ export default function SearchBar({ searchTerm, setSearchTerm, selectedType, set
     conflicto: "#9b59b6",  
     clima: "#1abc9c", 
     tecnologia: "#050042",    
-    todos: "#95a5a6",       
+    todos: "#aabf93",
+    otros: "#aabf93"
   };
 
   return (

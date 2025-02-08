@@ -45,7 +45,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
     conflicto: "#9b59b6",
     clima: "#1abc9c",
     tecnologia: "#050042",
-    default: "#95a5a6",
+    default: "#aabf93",
   };
 
   const normalizeType = (type: string) => {
@@ -54,6 +54,33 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
       .normalize("NFD") 
       .replace(/[\u0300-\u036f]/g, ""); 
   };
+
+
+  const CATEGORIES = {
+    "salud": ["hospital", "médico", "virus", "pandemia", "vacuna", "covid", "salud"],
+    "politica": ["gobierno", "presidente", "elección", "congreso", "ley", "partido"],
+    "seguridad": ["policía", "crimen", "delito", "robo", "asesinato", "secuestro", "violencia"],
+    "accidente": ["choque", "colisión", "derrumbe", "explosión", "accidente", "incendio"],
+    "conflicto": ["guerra", "protesta", "manifestación", "ataque", "terrorismo", "conflicto"],
+    "clima": ["huracán", "tormenta", "terremoto", "inundación", "frío", "calor", "desastre"],
+    "tecnologia": ["IA", "inteligencia artificial", "robot", "ciberseguridad", "redes", "smartphone"],
+  };
+  
+  function categorizeNews(title: string): "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia" | "otros" {
+    if (!title) return "otros";
+  
+    for (let category in CATEGORIES) {
+      for (let keyword of CATEGORIES[category]) {
+        const regex = new RegExp(`\\b${keyword}\\b`, "i"); 
+        if (regex.test(title)) {
+          return category as "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia";
+        }
+      }
+    }
+  
+    return "otros"; 
+  }
+  
 
 
   
@@ -72,15 +99,24 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   useEffect(() => {
     async function loadGDELTNews() {
       try {
-        const news = await fetchGDELTNews(); 
+        const news = await fetchGDELTNews();
         console.log("Noticias GDELT recibidas:", news);
-        setGdeltPoints(news);
+  
+        // 🔥 CATEGORIZAR AUTOMÁTICAMENTE LAS NOTICIAS
+        const categorizedNews = news.map(article => ({
+          ...article,
+          type: categorizeNews(article.name),  // Usa la función para asignar tipo
+        }));
+  
+        setGdeltPoints(categorizedNews);
       } catch (error) {
         console.error("Error al obtener noticias de GDELT:", error);
       }
     }
+    
     loadGDELTNews();
   }, []);
+  
   
   
   useEffect(() => {
@@ -109,15 +145,23 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
     const translateX = transform.x;
     const translateY = transform.y;
   
-    const projection = projectionRef.current.scale(scale).translate([width / 2 + translateX, height / 2 + translateY]);
+    const projection = projectionRef.current.scale(scale).translate([
+      width / 2 + translateX,
+      height / 2 + translateY,
+    ]);
   
-    const visible = [...points, ...gdeltPoints].filter((point) => {
+    const visible = filteredPoints.filter((point) => {
       const [x, y] = projection([point.longitude, point.latitude]) || [];
+  
+      console.log(`🗺 Punto ${point.name} -> X: ${x}, Y: ${y}, Zoom: ${transform.k}, Translate: (${translateX}, ${translateY})`);
+  
       return x >= 0 && x <= width && y >= 0 && y <= height;
     });
   
     setVisiblePoints(visible);
   };
+  
+  
   
   
   useEffect(() => {
@@ -130,12 +174,16 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
     if (!svgRef.current) return;
 
     d3.select(svgRef.current).selectAll("*").remove();
-
     projectionRef.current = d3
       .geoMercator()
       .center([-65, -15])
-      .scale(600)
-      .translate([width / 2, height / 2]);
+      .scale(600) 
+      .translate([
+        width / 2, 
+        height / 2
+      ]);
+  
+  
 
     const path = d3.geoPath().projection(projectionRef.current);
 

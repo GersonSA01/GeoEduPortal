@@ -1,23 +1,55 @@
-const fetch = require("node-fetch");
-
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const { countries } = require("countries-list");
+const cities = require("all-the-cities");
+
+
 const GDELT_API_URL =
-    "https://api.gdeltproject.org/api/v2/doc/doc?query=earthquake&format=json" +
+    "https://api.gdeltproject.org/api/v2/doc/doc?query=news&format=json" +
     "&maxrecords=25" +
-    "&timespan=7days" +
-    "&lang=en" +
+    "&timespan=1days" +
+    "&lang=es" +
     "&image=only" +
-    "&sort=rel" +
-    "&domain=cnn.com,bbc.com,espn.com" +
-    "&domaincountry=us";
+    "&sort=date" +
+    "&mode=artlist" +
+    "&sourcecountry=all" +
+    "&domain=bbc.com,cnn.com,elpais.com,clarin.com,eluniversal.com,milenio.com";
 
 const cache = {};
 
-async function fetchCoordinates(req, res) {
-    const { placeName } = req.query;
-    if (!placeName) return res.status(400).json({ error: "Falta el parámetro placeName" });
+function extractLocationFromTitle(title, sourceCountry) {
+    if (!title) return { city: null, country: null };
 
-    if (cache[placeName]) return res.json(cache[placeName]);
+    let detectedCountry = null;
+    let detectedCity = null;
+
+    for (let countryCode in countries) {
+        const countryName = countries[countryCode].name;
+        const regex = new RegExp(`\\b${countryName}\\b`, "i");
+        if (regex.test(title)) {
+            detectedCountry = countryName;
+            break;
+        }
+    }
+
+    for (let city of cities) {
+        if (city.name.length <= 3) continue;
+
+        const regex = new RegExp(`\\b${city.name}\\b`, "i");
+        if (regex.test(title)) {
+            if (!detectedCountry || city.country === detectedCountry) {
+                detectedCity = city.name;
+                detectedCountry = countries[city.country]?.name || detectedCountry;
+                break;
+            }
+        }
+    }
+
+    return { city: detectedCity, country: detectedCountry || sourceCountry };
+}
+
+async function fetchCoordinates(placeName) {
+    if (!placeName) return null;
+    if (cache[placeName]) return cache[placeName];
 
     try {
         const response = await fetch(
@@ -25,20 +57,30 @@ async function fetchCoordinates(req, res) {
         );
         const data = await response.json();
 
+        if (data.status !== "OK") {
+            console.error(`Google Maps no encontró coordenadas para: ${placeName}`);
+            return null;
+        }
+
         if (data.results.length > 0) {
             const location = {
                 lat: data.results[0].geometry.location.lat,
                 lon: data.results[0].geometry.location.lng,
             };
-
-            cache[placeName] = location;
-            return res.json(location);
+            cache[placeName] = location;  
+            return location;
         }
-        res.status(404).json({ error: "Lugar no encontrado" });
     } catch (error) {
         console.error("Error en fetchCoordinates:", error);
-        res.status(500).json({ error: "Error al obtener coordenadas" });
     }
+    return null;
+}
+
+function addRandomOffset(lat, lon, offset = 3) {
+    return {
+        lat: lat + (Math.random() * offset - offset / 2),
+        lon: lon + (Math.random() * offset - offset / 2),
+    };
 }
 
 async function fetchGDELTNews(req, res) {
@@ -46,35 +88,56 @@ async function fetchGDELTNews(req, res) {
         const response = await fetch(GDELT_API_URL);
         const data = await response.json();
 
-        console.log("Respuesta de la API GDELT:", JSON.stringify(data, null, 2));
-
-
         if (!data.articles) return res.json([]);
 
         const news = await Promise.all(
             data.articles.map(async (article, index) => {
                 let lat = null, lon = null;
+                let { city, country } = extractLocationFromTitle(article.title, article.sourcecountry);
 
-                if (article.sourcecountry) {
-                    console.log(`🔍 Buscando coordenadas para: ${article.sourcecountry}`);
-                    const response = await fetch(
-                        `http://localhost:5000/api/coordinates?placeName=${encodeURIComponent(article.sourcecountry)}`
-                    );
-                    const location = await response.json();
-                    console.log("📍 Coordenadas obtenidas:", location);
-                
+                if (city) {
+                    const cityData = cities.find(c => c.name === city);
+                    if (cityData) {
+                        lat = cityData.lat;
+                        lon = cityData.lon;
+                    } else {
+                        const location = await fetchCoordinates(city);
+                        if (location) {
+                            lat = location.lat;
+                            lon = location.lon;
+                        }
+                    }
+                } 
+
+                if (!lat && country) {
+                    const location = await fetchCoordinates(country);
                     if (location) {
                         lat = location.lat;
                         lon = location.lon;
                     }
                 }
-                
+
+                if (!lat && article.sourcecountry) {
+                    const location = await fetchCoordinates(article.sourcecountry);
+                    if (location) {
+                        lat = location.lat;
+                        lon = location.lon;
+                    }
+                }
+
+                if (!lat || !lon) {
+                    console.warn(`⚠️ No se encontraron coordenadas para: ${article.title}`);
+                } else {
+                    const newCoords = addRandomOffset(lat, lon, 2);
+                    lat = newCoords.lat;
+                    lon = newCoords.lon;
+                }
 
                 return lat && lon
                     ? {
                         id: `gdelt-${index}`,
-                        name: article.title,
-                        description: article.excerpt || "Noticia",
+                        name: article.title || "Sin título",
+                        description: article.excerpt || "Noticia sin descripción",
                         latitude: lat,
                         longitude: lon,
                         type: "news",
