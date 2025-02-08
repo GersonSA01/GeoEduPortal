@@ -16,13 +16,13 @@ export default function SearchBar({ searchTerm, setSearchTerm, selectedType, set
     seguridad: "#f1c40f",   
     accidente: "#3498db",   
     conflicto: "#9b59b6",  
-    clima: "#1abc9c",       
+    clima: "#1abc9c", 
+    tecnologia: "#050042",    
     todos: "#95a5a6",       
   };
 
   return (
     <div className="mb-6 w-full max-w-md">
-      {/* Barra de búsqueda */}
       <input
         type="text"
         placeholder="Buscar puntos..."
@@ -31,7 +31,6 @@ export default function SearchBar({ searchTerm, setSearchTerm, selectedType, set
         className="w-full p-3 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
       />
 
-      {/* Selector de filtro por tipo */}
       <div className="mt-4">
         <label className="block text-gray-700 font-medium">Filtrar por tipo:</label>
         <select
@@ -50,7 +49,6 @@ export default function SearchBar({ searchTerm, setSearchTerm, selectedType, set
         </select>
       </div>
 
-      {/* Leyenda de colores */}
       <div className="flex flex-wrap gap-2 p-4 bg-white shadow-md rounded-lg mt-4">
         {Object.entries(typeColors).map(([key, color]) => (
           key !== "todos" && (

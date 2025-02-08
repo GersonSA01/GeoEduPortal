@@ -13,7 +13,7 @@ interface MapPoint {
   description: string;
   latitude: number;
   longitude: number;
-  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima"; 
+  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia"; 
   url?: string;
   images?: string[];
 }

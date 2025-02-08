@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const pointRoutes = require("./routes/pointRoutes");
 const { approveUser } = require("./controllers/approveController");
 const errorHandler = require("./middleware/errorHandler");
+const apiRoutes = require("./routes/apiRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/points", pointRoutes);
 
 app.get("/api/approve", approveUser);
+app.use("/api", apiRoutes);
 
 app.use(errorHandler);
 

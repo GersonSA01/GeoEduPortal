@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import NewsCards from "./NewsCards";
 import SearchBar from "./SearchBar"
+import { fetchGDELTNews } from "../../lib/apiService"; 
 
 interface MapPoint {
   id: string;
@@ -11,7 +12,7 @@ interface MapPoint {
   description: string;
   latitude: number;
   longitude: number;
-  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima"; 
+  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia"; 
   url?: string;
   images?: string;
 }
@@ -43,6 +44,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
     accidente: "#3498db",
     conflicto: "#9b59b6",
     clima: "#1abc9c",
+    tecnologia: "#050042",
     default: "#95a5a6",
   };
 
@@ -54,44 +56,7 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   };
 
 
-  const fetchCoordinates = async (placeName: string) => {
-    const cachedData = localStorage.getItem(`coords_${placeName}`);
-    if (cachedData) {
-      return JSON.parse(cachedData);
-    }
   
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(placeName)}&key=AIzaSyBLQegowHjIpKl5KE4MgtFNUsA3EvoyN_E`
-      );
-      const data = await response.json();
-  
-      if (data.results.length > 0) {
-        const location = {
-          lat: data.results[0].geometry.location.lat,
-          lon: data.results[0].geometry.location.lng,
-        };
-  
-        localStorage.setItem(`coords_${placeName}`, JSON.stringify(location));
-        console.log(` Coordenadas guardadas en caché para: ${placeName}`);
-  
-        return location;
-      }
-    } catch (error) {
-      console.error("Error en Geocoding:", error);
-    }
-  
-    return null;
-  };
-  
-
-  const addRandomOffset = (lat: number, lon: number) => {
-    const offset = 2; 
-    return {
-      lat: lat + (Math.random() * offset - offset / 2), 
-      lon: lon + (Math.random() * offset - offset / 2),
-    };
-  };
 
   useEffect(() => {
     const filtered = [...points, ...gdeltPoints].filter(
@@ -105,121 +70,61 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
   }, [searchTerm, points, gdeltPoints, selectedType]);
   
   useEffect(() => {
-    const GDELT_API_URL =
-      "https://api.gdeltproject.org/api/v2/doc/doc?query=earthquake&format=json" +
-      "&maxrecords=25" +
-      "&timespan=7days" +
-      "&lang=en" +
-      "&image=only" +
-      "&sort=rel" +
-      "&domain=cnn.com,bbc.com, espn .com" +
-      "&domaincountry=us";
-  
-    const fetchGDELTNews = async () => {
-      const cacheKey = "gdelt_news_cache";
-      const cacheTimeKey = "gdelt_news_time";
-      const cacheDuration = 30 * 60 * 1000; 
-  
-      const cachedData = localStorage.getItem(cacheKey);
-      const cachedTime = localStorage.getItem(cacheTimeKey);
-      if (cachedData && cachedTime && Date.now() - parseInt(cachedTime) < cacheDuration) {
-        setGdeltPoints(JSON.parse(cachedData));
-        return;
-      }
-  
+    async function loadGDELTNews() {
       try {
-        const response = await fetch(GDELT_API_URL);
-        const data = await response.json();
-  
-        console.log("✅ GDELT API Response:", data);
-  
-        if (!data.articles) {
-          console.error("No articles found in response.");
-          return;
-        }
-  
-        const gdeltData: MapPoint[] = await Promise.all(
-          data.articles.map(async (article: any, index: number) => {
-            let lat = null;
-            let lon = null;
-  
-            if (article.sourcecountry) {
-              console.log(`🔍 Buscando coordenadas para: ${article.sourcecountry}`);
-              const location = await fetchCoordinates(article.sourcecountry);
-              if (location) {
-                const newCoords = addRandomOffset(location.lat, location.lon); 
-                lat = newCoords.lat;
-                lon = newCoords.lon;
-              }
-            }
-  
-            return lat && lon
-              ? {
-                  id: `gdelt-${index}`,
-                  name: article.title,
-                  description: article.excerpt || "Noticia",
-                  latitude: lat,
-                  longitude: lon,
-                  type: "news",
-                  url: article.url,
-                  images:
-                    article.socialimage && article.socialimage.startsWith("http")
-                      ? article.socialimage
-                      : "https://via.placeholder.com/150",
-                }
-              : null;
-          })
-        );
-
-
-
-        
-        
-  
-        const filteredGdeltData = gdeltData.filter((point) => point !== null);
-        console.log("🗺️ Puntos de GDELT con coordenadas:", filteredGdeltData);
-  
-        setGdeltPoints(filteredGdeltData);
-  
-        localStorage.setItem(cacheKey, JSON.stringify(filteredGdeltData));
-        localStorage.setItem(cacheTimeKey, Date.now().toString());
-  
+        const news = await fetchGDELTNews(); 
+        console.log("Noticias GDELT recibidas:", news);
+        setGdeltPoints(news);
       } catch (error) {
-        console.error("Error fetching GDELT data:", error);
+        console.error("Error al obtener noticias de GDELT:", error);
       }
-    };
-  
-    fetchGDELTNews();
+    }
+    loadGDELTNews();
   }, []);
   
+  
   useEffect(() => {
-    setFilteredPoints(
-      [...points, ...gdeltPoints].filter(
-        (point) =>
-          point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          point.type.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    setSelectedPointId(null); 
-  }, [searchTerm, points, gdeltPoints]);
+    console.log("Estado actualizado - gdeltPoints:", gdeltPoints);
+  }, [gdeltPoints]);
+  
+  
+
+  
+  useEffect(() => {
+    setFilteredPoints([...points, ...gdeltPoints].filter(
+      (point) =>
+        (selectedType === "todos" || normalizeType(point.type) === selectedType) &&
+        (point.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         point.type.toLowerCase().includes(searchTerm.toLowerCase()))
+    ));
+    setSelectedPointId(null);
+  }, [searchTerm, points, gdeltPoints, selectedType]);
+  
   
 
   const updateVisiblePoints = (transform) => {
     if (!projectionRef.current) return;
-
-    const scale = 600 * transform.k; 
+  
+    const scale = 600 * transform.k;
     const translateX = transform.x;
     const translateY = transform.y;
-
+  
     const projection = projectionRef.current.scale(scale).translate([width / 2 + translateX, height / 2 + translateY]);
-
-    const visible = filteredPoints.filter((point) => {
+  
+    const visible = [...points, ...gdeltPoints].filter((point) => {
       const [x, y] = projection([point.longitude, point.latitude]) || [];
       return x >= 0 && x <= width && y >= 0 && y <= height;
     });
-
+  
     setVisiblePoints(visible);
   };
+  
+  
+  useEffect(() => {
+    updateVisiblePoints({ x: 0, y: 0, k: 1 }); 
+  }, [gdeltPoints, points]);
+  
+  
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -335,7 +240,7 @@ markers
     tooltip
       .style("visibility", "visible")
       .style("left", `${event.pageX - 125}px`)
-      .style("top", `${event.pageY - 275}px`)
+      .style("top", `${event.pageY - 315}px`)
       .html(`
         <div style="max-width: 250px; max-height: 300px; padding: 12px; background: #ffffff; border-radius: 8px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
           ${carousel}

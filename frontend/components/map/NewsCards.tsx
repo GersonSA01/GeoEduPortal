@@ -5,7 +5,7 @@ interface MapPoint {
   id: string;
   name: string;
   description: string;
-  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima"; 
+  type: "salud" | "politica" | "seguridad" | "accidente" | "conflicto" | "clima" | "tecnologia"; 
   url?: string;
   images?: string; 
 }

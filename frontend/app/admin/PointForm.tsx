@@ -158,6 +158,8 @@ export default function PointForm({
             <option value="accidente">Accidente</option>
             <option value="conflicto">Conflicto</option>
             <option value="clima">Clima</option>
+            <option value="Tecnologia">Tecnologia</option>
+
           </select>
 
         </div>
