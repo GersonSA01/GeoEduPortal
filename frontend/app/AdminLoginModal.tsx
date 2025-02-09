@@ -13,7 +13,6 @@ interface AdminLoginModalProps {
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: AdminLoginModalProps) {
   const [isRegister, setIsRegister] = useState(false); 
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-  const [message, setMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,36 +20,46 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
+    if (!formData.email.includes("@")) {
+      Swal.fire("Error", "Por favor, introduce un correo electrónico válido.", "error");
+      return;
+    }
+    if (formData.password.length < 6) {
+      Swal.fire("Error", "La contraseña debe tener al menos 6 caracteres.", "error");
+      return;
+    }
+    if (isRegister && formData.name.trim() === "") {
+      Swal.fire("Error", "El nombre es obligatorio para registrarse.", "error");
+      return;
+    }
+
+    const url = isRegister
+      ? "http://localhost:5000/api/auth/register"
+      : "http://localhost:5000/api/auth/login";
+
     try {
-      const url = isRegister
-        ? "http://localhost:5000/api/auth/register"
-        : "http://localhost:5000/api/auth/login";
-  
       const { data } = await axios.post(url, formData);
-  
+
       if (isRegister) {
         Swal.fire("¡Registro enviado!", "Tu solicitud ha sido enviada. Espera la aprobación del administrador.", "info");
-        setIsRegister(false); 
+        setIsRegister(false);
+      } else if (!data.approved) {
+        Swal.fire("Pendiente de Aprobación", "Tu cuenta aún no ha sido aprobada. Por favor, espera.", "warning");
+        return;
       } else {
-        if (data.approved === false) {
-          Swal.fire("Pendiente de Aprobación", "Tu cuenta aún no ha sido aprobada por el administrador. Por favor, espera.", "warning");
-          return;
-        }
-  
         localStorage.setItem("authToken", data.token);
         Swal.fire("¡Éxito!", "Inicio de sesión correcto.", "success");
         onLoginSuccess();
         onClose();
       }
-  
+
       setFormData({ name: "", email: "", password: "" });
-      setMessage("");
     } catch (error: any) {
-      if (error.response?.status === 403) {
-        Swal.fire("Pendiente de Aprobación", "Tu cuenta aún no ha sido aprobada. Intenta más tarde.", "warning");
+      if (axios.isAxiosError(error)) {
+        Swal.fire("Error", error.response?.data?.message || "Error inesperado en la solicitud.", "error");
       } else {
-        setMessage(error.response?.data?.message || "Error inesperado.");
+        Swal.fire("Error", "No se pudo conectar con el servidor. Revisa tu conexión a Internet.", "error");
       }
     }
   };
@@ -116,7 +125,6 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
               : "¿No tienes cuenta? Regístrate"}
           </button>
         </div>
-        {message && <p className="mt-4 text-center text-sm text-red-500">{message}</p>}
       </div>
     </div>
   );

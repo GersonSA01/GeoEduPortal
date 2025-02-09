@@ -24,6 +24,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [mapPoints, setMapPoints] = useState<MapPoint[]>([]);
   const [showMap, setShowMap] = useState(false); 
 
+  const loadPoints = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/points");
+      setMapPoints(response.data);
+    } catch (error) {
+      console.error("Error al cargar los puntos:", error);
+    }
+  };
+  
+
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -33,10 +43,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     setIsModalOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("authToken");
     setIsAuthenticated(false);
-
+  
+    await loadPoints();
+  
     import("sweetalert2").then((Swal) => {
       Swal.default.fire({
         icon: "success",
@@ -45,11 +57,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false,
-      }).then(() => {
-        window.location.reload();
       });
     });
   };
+  
+  
+  
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");

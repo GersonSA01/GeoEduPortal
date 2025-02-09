@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Map from "../../components/map/Map";
 import Swal from "sweetalert2";
@@ -35,25 +35,26 @@ export default function DashboardAdmin() {
     images: null,
   });
 
+
+  const loadPoints = useCallback(async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/points");
+      setMapPoints(response.data);
+    } catch (error) {
+      console.error("Error al cargar los puntos:", error);
+    }
+  }, []);
+  
   useEffect(() => {
     loadPoints();
-  }, []);
+  }, [loadPoints]);
+  
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     setIsAuthenticated(!!token);  
   }, []);
 
-  const loadPoints = () => {
-    axios
-      .get("http://localhost:5000/api/points")
-      .then((response) => {
-        setMapPoints(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al cargar los puntos:", error);
-      });
-  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

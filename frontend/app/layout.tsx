@@ -7,9 +7,9 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'GeoEduPortal',
-  description: 'Portal educativo de geología y ciencias de la tierra',
+  description: 'Portal de noticias internacionales',
   applicationName: 'GeoEduPortal',
-  keywords: ['geología', 'educación', 'ciencias de la tierra', 'mapas interactivos'],
+  keywords: ['noticias', 'educación', 'internacionales', 'mapas interactivos'],
   viewport: 'width=device-width, initial-scale=1',
   themeColor: '#0055a5',
   icons: {
