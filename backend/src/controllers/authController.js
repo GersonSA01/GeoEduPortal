@@ -32,10 +32,14 @@ const sendEmail = async (to, subject, html) => {
 };
 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
   if (!email || !password || password.length < 6) {
     return res.status(400).json({ message: "Datos inválidos o contraseña demasiado corta" });
+  }
+  
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Las contraseñas no coinciden" });
   }
 
   try {
@@ -78,6 +82,7 @@ exports.register = async (req, res) => {
   }
 };
 
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -107,5 +112,39 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error("ERROR en login:", error);
     res.status(500).json({ message: "Error al iniciar sesión" });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id; 
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: "Todos los campos son obligatorios" });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: "La nueva contraseña debe tener al menos 6 caracteres" });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "La contraseña actual es incorrecta" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Contraseña actualizada con éxito" });
+  } catch (error) {
+    console.error("ERROR al cambiar la contraseña:", error);
+    res.status(500).json({ message: "Error al cambiar la contraseña" });
   }
 };

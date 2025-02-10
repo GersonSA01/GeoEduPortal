@@ -12,7 +12,7 @@ interface AdminLoginModalProps {
 
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: AdminLoginModalProps) {
   const [isRegister, setIsRegister] = useState(false); 
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,6 +31,10 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
     }
     if (isRegister && formData.name.trim() === "") {
       Swal.fire("Error", "El nombre es obligatorio para registrarse.", "error");
+      return;
+    }
+    if (isRegister && formData.password !== formData.confirmPassword) {
+      Swal.fire("Error", "Las contraseñas no coinciden.", "error");
       return;
     }
 
@@ -54,7 +58,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
         onClose();
       }
 
-      setFormData({ name: "", email: "", password: "" });
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         Swal.fire("Error", error.response?.data?.message || "Error inesperado en la solicitud.", "error");
@@ -63,7 +67,6 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
       }
     }
   };
-  
 
   return (
     <div className={`fixed inset-0 z-50 ${isOpen ? "block" : "hidden"}`}>
@@ -108,6 +111,19 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }: Adm
               placeholder="••••••••"
             />
           </div>
+          {isRegister && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
           <button
             type="submit"
             className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
