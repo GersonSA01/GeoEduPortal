@@ -21,7 +21,7 @@ const Tooltip: React.FC<TooltipProps> = ({ point, position }) => {
       style={{
         position: "absolute",
         left: `${position.x - 125}px`,
-        top: `${position.y - 315}px`,
+        top: `${position.y - 330}px`,
         background: "#ffffff",
         borderRadius: "8px",
         boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",

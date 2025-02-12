@@ -116,7 +116,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
       <div className="pt-16">
         <AdminLoginModal isOpen={isModalOpen} onClose={toggleModal} onLoginSuccess={handleLoginSuccess} />
-        <ProfileModal isOpen={isProfileModalOpen} onClose={toggleProfileModal} /> {/* Modal de perfil */}
+        <ProfileModal isOpen={isProfileModalOpen} onClose={toggleProfileModal} />
         
         {isAuthenticated ? (
           <DashboardAdmin mapPoints={mapPoints} setMapPoints={setMapPoints} isAuthenticated={isAuthenticated} />

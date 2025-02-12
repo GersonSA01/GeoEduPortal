@@ -155,18 +155,31 @@ export default function Map({ width = 800, height = 600, points, editPoint, dele
 
   return (
     <div className="p-4 sm:p-6 lg:p-12 bg-gray-50 h-full flex flex-col items-center justify-center">
-      <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mt-8">
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedType={selectedType} setSelectedType={setSelectedType} />
-      </div>
-      <div className="flex flex-col md:flex-row w-full max-w-7xl gap-6 h-[80vh]">
-        <div className="w-full md:w-1/2 h-full bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="flex w-full h-[85vh] gap-6">
+        
+        <div className="w-1/5 bg-white rounded-lg shadow-lg p-4">
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedType={selectedType} setSelectedType={setSelectedType} />
+        </div>
+  
+        <div className="w-4/5 bg-white rounded-lg shadow-lg relative">
           <svg ref={svgRef} className="w-full h-full touch-none" />
         </div>
-        <div className="w-full md:w-1/2 h-full overflow-y-auto">
-          <NewsCards visiblePoints={visiblePoints} editPoint={editPoint} deletePoint={deletePoint} isAuthenticated={isAuthenticated} selectedPointId={selectedPointId} />
+  
+        <div className="w-3/5 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
+          <NewsCards 
+            visiblePoints={visiblePoints} 
+            editPoint={editPoint} 
+            deletePoint={deletePoint} 
+            isAuthenticated={isAuthenticated} 
+            selectedPointId={selectedPointId} 
+          />
         </div>
+  
       </div>
+  
       {tooltipData.point && <Tooltip point={tooltipData.point} position={tooltipData.position} />}
     </div>
   );
+  
+  
 }

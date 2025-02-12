@@ -50,15 +50,18 @@ export default function SearchBar({ searchTerm, setSearchTerm, selectedType, set
         </select>
       </div>
 
-      <div className="flex flex-wrap gap-2 p-4 bg-white shadow-md rounded-lg mt-4">
-        {Object.entries(typeColors).map(([key, color]) => (
-          key !== "todos" && (
-            <div key={key} className="flex items-center space-x-2">
-              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }}></div>
-              <span className="text-sm capitalize">{key}</span>
-            </div>
-          )
-        ))}
+      <div className="mt-4 p-4 bg-white shadow-md rounded-lg">
+        <h3 className="text-gray-700 font-semibold mb-2">Leyenda</h3>
+        <ul className="space-y-2">
+          {Object.entries(typeColors).map(([key, color]) => (
+            key !== "todos" && (
+              <li key={key} className="flex items-center space-x-2">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }}></div>
+                <span className="text-sm capitalize">{key}</span>
+              </li>
+            )
+          ))}
+        </ul>
       </div>
     </div>
   );
