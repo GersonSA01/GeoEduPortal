@@ -42,13 +42,22 @@ GeoEduPortal es un portal de noticias a nivel mundial que utiliza un mapa intera
 Para correr el proyecto, abre dos terminales y ejecuta lo siguiente:
 
 ### Terminal 1 (Frontend)
-```bash
 cd frontend
 npm install
 npm run dev
 
 ### Terminal 2 (Backend)
-```bash
 cd backend
 npm install
 npm run dev
+
+## Nuevo
+
+Se ha implementado una nueva forma más robusta de registrar administradores. A continuación se proporcionan las credenciales de acceso:
+
+**Correo:**  
+gsuareza3@unemi.edu.ec
+
+**Contraseña:**  
+gsuareza3
+
