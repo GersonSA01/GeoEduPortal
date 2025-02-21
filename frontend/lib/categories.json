@@ -1,0 +1,10 @@
+{
+    "salud": ["hospital", "médico", "virus", "pandemia", "vacuna", "covid", "salud"],
+    "politica": ["gobierno", "presidente", "elección", "congreso", "ley", "partido"],
+    "seguridad": ["policía", "crimen", "delito", "robo", "asesinato", "secuestro", "violencia"],
+    "accidente": ["choque", "colisión", "derrumbe", "explosión", "accidente", "incendio"],
+    "conflicto": ["guerra", "protesta", "manifestación", "ataque", "terrorismo", "conflicto"],
+    "clima": ["huracán", "tormenta", "terremoto", "inundación", "frío", "calor", "desastre"],
+    "tecnologia": ["IA", "inteligencia artificial", "robot", "ciberseguridad", "redes", "smartphone"]
+  }
+  
