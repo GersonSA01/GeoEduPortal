@@ -50,7 +50,7 @@ Para que el sistema pueda enviar correos, necesitas configurar una **contraseña
 5. Crea una nueva contraseña de aplicación, seleccionando **Correo** y **Otro (personalizado)**.
 6. Copia la contraseña generada y úsala en la variable `EMAIL_PASS` de tu archivo `.env`.
 
-## 🏗Cómo ejecutar el proyecto
+## Cómo ejecutar el proyecto
 
 Para correr el proyecto, abre dos terminales y ejecuta lo siguiente:
 
