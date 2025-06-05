@@ -33,6 +33,7 @@ const Tooltip: React.FC<TooltipProps> = ({ point, position }) => {
         alignItems: "center",
       }}
     >
+      
       {formattedImages.length > 0 ? (
         <img
           src={formattedImages[0]}

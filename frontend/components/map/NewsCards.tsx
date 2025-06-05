@@ -10,6 +10,7 @@ interface MapPoint {
   images?: string; 
 }
 
+
 interface NewsCardsProps {
   visiblePoints: MapPoint[];
   editPoint: (point: MapPoint) => void;
