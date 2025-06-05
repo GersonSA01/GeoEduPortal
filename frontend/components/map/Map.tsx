@@ -19,6 +19,7 @@ interface MapPoint {
   images?: string;
 }
 
+
 interface MapProps {
   width?: number;
   height?: number;

@@ -22,6 +22,7 @@ export default function SearchBar({ searchTerm, setSearchTerm, selectedType, set
     otros: "#aabf93"
   };
 
+  
   return (
     <div className="mb-6 w-full max-w-md">
       <input
